@@ -26,6 +26,7 @@ async def show_event():
 
 @router.post(
     "/",
+    status_code=201,
     responses={
         201: {'model': schemas.CreateEvent},
         400: {'model': Message},
@@ -37,6 +38,7 @@ async def create_event(body: schemas.PostEvent):
 
 @router.patch(
     "/{event_id}",
+    status_code=200,
     responses={
         200: {'model': schemas.CreateEvent},
         400: {'model': Message},
@@ -48,6 +50,7 @@ async def edit_event(body: schemas.PatchEvent):
 
 @router.delete(
     "/{event_id}",
+    status_code=204,
     responses={
         204: {},
         404: {'model': Message},
