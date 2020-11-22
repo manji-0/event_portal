@@ -49,7 +49,7 @@ async def edit_event(body: schemas.PatchEvent):
 @router.delete(
     "/{event_id}",
     responses={
-        204: {'model': Message},
+        204: {},
         404: {'model': Message},
         409: {'model': Message}})
 async def delete_event():
