@@ -48,7 +48,7 @@ class Event(BaseModel):
 
 class EventDetail(BaseModel):
     name: str
-    _id: str
+    _id: UUID4
     location: str
     start_time: str
     end_time: str
