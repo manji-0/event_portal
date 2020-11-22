@@ -20,12 +20,11 @@ class Event(Base):
     state_time = Column(DATETIME)
     end_time = Column(DATETIME)
 
-    participants = relationship("Participants", back_populates="event")
+    participants = relationship("Participant", back_populates="event")
 
-class Participants(Base):
+class Participant(Base):
     __tablename__ = "participants"
 
-    id = Column(Integer, unique=True)
     email = Column(NVARCHAR(length=320))
     event_id = Column(CHAR(length=36), ForeignKey("events.id"))
 

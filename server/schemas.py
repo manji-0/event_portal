@@ -46,23 +46,22 @@ class Event(BaseModel):
     class Config:
         fields = {'_id': 'id'}
 
-class EventDetail(BaseModel):
-    name: str
-    _id: UUID4
-    location: str
+class EventMeta(Event):
     start_time: str
     end_time: str
+
+class EventDetail(EventMeta):
+    participants: List[EmailStr]
+
+    class Config:
+        orm_mode = True
 
 class ListEvents(BaseModel):
     events: List[Event]
 
 class ShowEvent(BaseModel):
     event: EventDetail
-    participants: List[EmailStr]
 
 class CreateEvent(BaseModel):
-    event: EventDetail
-
-class ListParticipants(BaseModel):
-    participants: List[EmailStr]
+    event: EventMeta
 
