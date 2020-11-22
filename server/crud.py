@@ -47,14 +47,14 @@ def delete_event_db(db: Session, event_id: str):
     return True
 
 def add_participants_to_event_db(db: Session, event_id: str, email: str):
-    db_item = models.Participant(event_id=event_id, email=email)
+    db_item = models.Participants(event_id=event_id, email=email)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
     return db_item
 
 def delete_participants_from_event_db(db: Session, event_id: str, email: str):
-    target = db.query(models.Participant).filter(models.Participant.email == email and models.Participant.event_id == event_id).first()
+    target = db.query(models.Participants).filter(models.Participants.email == email and models.Participants.event_id == event_id).first()
     db.delete(target)
     db.commit()
     return True
