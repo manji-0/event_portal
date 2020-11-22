@@ -14,11 +14,6 @@ app.include_router(
     prefix="/v1/events"
     )
 
-app.include_router(
-    users.router,
-    prefix="/v1/users"
-    )
-
 # General Routes
 @app.get("/", tags=["Service Health Check"])
 async def selfcheck():
