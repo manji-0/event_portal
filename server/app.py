@@ -15,11 +15,6 @@ app.include_router(
     )
 
 # General Routes
-@app.get("/", tags=["Service Health Check"])
-async def selfcheck():
-    return {
-        "ping": "pong",
-        "version": "0.1.0",
-        "api_version": "v1"}
-
-
+@app.head("/")
+async def healthcheck():
+    return
