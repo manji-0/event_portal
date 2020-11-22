@@ -1,5 +1,4 @@
 import datetime as dt
-import uuid
 from sqlalchemy.orm import Session
 
 from . import (
@@ -17,28 +16,20 @@ def show_event_db(db: Session, event_id: str):
 
     return {'event': event, 'participants': participants}
 
-def create_event_db(db: Session, event: schemas.PostEvent):
-    db_event = models.Event(**event.dict(), id=uuid.uuid4())
+def create_event_db(db: Session, event: schemas.PostEvent, uuid: str):
+    db_event = models.Event(**event.dict(), id=uuid)
     db.add(db_event)
     db.commit()
     db.refresh()
     return db_event
 
-def update_event_db(db: Session, event_id: str, name, location, start_time, end_time):
+def update_event_db(db: Session, event_id: str, data: schemas.PatchEvent):
     target = db.query(models.Event).filter(models.Event.id == event_id).first()
-
-    if name:
-        target.name = name
-    if location:
-        target.location = location
-    if start_time:
-        target.start_time = start_time
-    if end_time:
-        target.end_time = end_time
-    
+    target.update(**data.dict())
     db.commit()
-    
-    return True
+    db.refresh()
+
+    return target
 
 def delete_event_db(db: Session, event_id: str):
     target = db.query(models.Event).filter(models.Event.id == event_id).first()

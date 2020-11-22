@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from pydantic import Field
 from typing import Optional
 from sqlalchemy.orm import Session
+import uuid
 
 from ..db import SessionLocal, engine
 
@@ -31,13 +32,13 @@ def get_db():
 class Message(BaseModel):
     detail: str
 
-@router.get("/", response_model=schemas.ListEvents)
+@router.get("", response_model=schemas.ListEvents)
 async def list_events(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100):
     events = crud.list_events_db(db=db, skip=skip, limit=limit)
-    return events
+    return {'events': events}
 
 @router.get(
     "/{event_id}",
@@ -48,10 +49,10 @@ async def show_event(
     event_id: str,
     db: Session = Depends(get_db)):
     event = crud.show_event_db(db, event_id)
-    return event
+    return {'event': event}
 
 @router.post(
-    "/",
+    "",
     status_code=201,
     responses={
         201: {'model': schemas.CreateEvent},
@@ -62,10 +63,11 @@ async def show_event(
 async def create_event(
     body: schemas.PostEvent,
     db: Session = Depends(get_db)):
-    result = crud.create_event_db(db, body)
+    _uuid = uuid.uuid4()
+    result = crud.create_event_db(db, body, _uuid)
 
     if result:
-        return result
+        return {'event': crud.show_event_db(db, _uuid)}
     else:
         raise HTTPException(503)
 
@@ -78,8 +80,20 @@ async def create_event(
         401: {'model': Message},
         403: {'model': Message},
         404: {'model': Message}})
-async def edit_event(body: schemas.PatchEvent):
-    pass
+async def edit_event(
+    body: schemas.PatchEvent,
+    event_id: str,
+    db: Session = Depends(get_db)):
+
+    if not crud.show_event_db(db, event_id):
+        return (404, {'detail': event_id + "is not registered"})
+
+    result = crud.update_event_db(db, event_id, body)
+
+    if result:
+        return (200, {"event": result})
+    else:
+        return HTTPException(503)
 
 @router.delete(
     "/{event_id}",
@@ -88,8 +102,19 @@ async def edit_event(body: schemas.PatchEvent):
         204: {},
         404: {'model': Message},
         409: {'model': Message}})
-async def delete_event():
-    pass    
+async def delete_event(
+    event_id: str,
+    db: Session = Depends(get_db)
+):
+    if not crud.show_event_db(db, event_id):
+        return (404, {'detail': event_id + "is not registered"})
+
+    result = crud.delete_event_db(db, event_id)
+
+    if result:
+        return (204)
+    else:
+        raise HTTPException(503)
 
 @router.get(
     "/{event_id}/participant",

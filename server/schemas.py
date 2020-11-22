@@ -16,6 +16,9 @@ class PostEvent(BaseModel):
     start_timestamp = constr(regex=r"[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]")
     end_timestamp = constr(regex=r"[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]")
 
+    class Config:
+        orm_mode = True
+
 class PatchEvent(BaseModel):
     name: str = Field(None, min_length=1, max_length=128)
     location: str = Field(None, min_length=1, max_length=256)
@@ -27,6 +30,9 @@ class PatchEvent(BaseModel):
         None,
         regex=r"[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]"
     )
+
+    class Config:
+        orm_mode = True
 
 class DeleteEvent(BaseModel):
     pass
