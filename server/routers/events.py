@@ -1,28 +1,54 @@
-from fastapi import APIRouter
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException
+    )
 from pydantic import BaseModel
 from pydantic import Field
 from typing import Optional
-from .. import db
-from .. import schemas
+from sqlalchemy.orm import Session
+
+from ..db import SessionLocal, engine
+
+from .. import (
+    crud,
+    models,
+    schemas
+)
+
+models.Base.metadata.create_all(bind=engine)
+
 
 router = APIRouter()
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 class Message(BaseModel):
-    status: str = Field("", description="status description")
-    message: str = Field("", description="detail of the status")
+    detail: str
 
 @router.get("/", response_model=schemas.ListEvents)
-async def list_events():
-    pass
+async def list_events(
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100):
+    events = crud.list_events_db(db=db, skip=skip, limit=limit)
+    return events
 
 @router.get(
     "/{event_id}",
     responses={
         200: {'model': schemas.ShowEvent},
         404: {'model': Message}})
-async def show_event():
-    pass
+async def show_event(
+    event_id: str,
+    db: Session = Depends(get_db)):
+    event = crud.show_event_db(db, event_id)
+    return event
 
 @router.post(
     "/",
@@ -33,8 +59,15 @@ async def show_event():
         401: {'model': Message},
         403: {'model': Message},
         409: {'model': Message}})
-async def create_event(body: schemas.PostEvent):
-    pass
+async def create_event(
+    body: schemas.PostEvent,
+    db: Session = Depends(get_db)):
+    result = crud.create_event_db(db, body)
+
+    if result:
+        return result
+    else:
+        raise HTTPException(503)
 
 @router.patch(
     "/{event_id}",
