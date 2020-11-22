@@ -60,7 +60,7 @@ class ShowEvent(BaseModel):
     event: EventDetail
     participants: List[EmailStr]
 
-class CreateEvents(BaseModel):
+class CreateEvent(BaseModel):
     event: EventDetail
 
 class ListParticipants(BaseModel):
